@@ -13,8 +13,13 @@ interface ChatMessage {
 }
 
 export function initSocket(httpServer: HttpServer) {
+  const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.FRONTEND_URL,
+  ].filter(Boolean) as string[];
+
   const io = new SocketIOServer(httpServer, {
-    cors: { origin: "*" }, // fine for dev; restrict to your frontend domain in production
+    cors: { origin: allowedOrigins },
   });
 
   io.on("connection", (socket: Socket) => {

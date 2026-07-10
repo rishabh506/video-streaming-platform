@@ -12,7 +12,12 @@ import { initSocket } from "./lib/socket";
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
+app.use(cors({ origin: allowedOrigins }));
 
 // Stripe webhooks need the RAW request body to verify signatures,
 // so this must be registered before express.json() below.

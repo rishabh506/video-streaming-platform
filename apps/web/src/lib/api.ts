@@ -1,10 +1,11 @@
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
 export const api = axios.create({
-  baseURL: "http://localhost:4000",
+  baseURL: API_BASE_URL,
 });
 
-// Attach the saved token (if any) to every outgoing request.
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("vsp_token");
   if (token) {
