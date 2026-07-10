@@ -39,7 +39,6 @@ router.post("/", requireAuth, async (req: AuthedRequest, res) => {
 router.get("/:roomCode", async (req, res) => {
   const party = await prisma.watchParty.findUnique({
     where: { roomCode: req.params.roomCode },
-    include: { }, // video/host relations aren't declared on WatchParty yet — see note below
   });
 
   if (!party) {

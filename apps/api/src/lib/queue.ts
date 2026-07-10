@@ -11,5 +11,6 @@ export interface TranscodeJobData {
 }
 
 export const transcodeQueue = new Queue<TranscodeJobData>("transcode", {
-  connection,
+  connection: connection as any, // BullMQ's ConnectionOptions type and ioredis's Redis type
+  // can drift out of sync across versions; casting avoids a false-positive TS error here.
 });

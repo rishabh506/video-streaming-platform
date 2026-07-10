@@ -48,7 +48,7 @@ router.post("/upload-url", requireAuth, async (req: AuthedRequest, res) => {
 // Called by the client once the direct-to-S3 upload finishes.
 // Marks the video QUEUED. (Transcode job enqueueing gets wired in Phase 3.)
 router.post("/:id/complete", requireAuth, async (req: AuthedRequest, res) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
 
   const video = await prisma.video.findUnique({ where: { id } });
   if (!video) {
@@ -93,8 +93,9 @@ router.get("/", async (_req, res) => {
 
 // GET /videos/:id
 router.get("/:id", optionalAuth, async (req: AuthedRequest, res) => {
+  const videoId = req.params.id as string;
   const video = await prisma.video.findUnique({
-    where: { id: req.params.id },
+    where: { id: videoId },
     include: {
       owner: { select: { id: true, displayName: true, avatarUrl: true } },
       chapters: { orderBy: { startSec: "asc" } },
