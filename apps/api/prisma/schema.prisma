@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String?
+  displayName   String
+  avatarUrl     String?
+  role          Role     @default(VIEWER)
+  createdAt     DateTime @default(now())
+  videos        Video[]
+  subscriptions Subscription[]  @relation("SubscriberSubs")
+  stripeCustomerId String?
+}
+
+enum Role {
+  VIEWER
+  CREATOR
+  ADMIN
+}
+
+model Video {
+  id            String   @id @default(uuid())
+  ownerId       String
+  owner         User     @relation(fields: [ownerId], references: [id])
+  title         String
+  description   String?
+  status        VideoStatus @default(UPLOADING)
+  rawKey        String   // storage key of original upload
+  hlsMasterKey  String?  // key to master.m3u8 once transcoded
+  durationSec   Int?
+  thumbnailUrl  String?
+  isPremium     Boolean  @default(false)
+  visibility    Visibility @default(PUBLIC)
+  createdAt     DateTime @default(now())
+  chapters      Chapter[]
+  views         View[]
+}
+
+enum VideoStatus {
+  UPLOADING
+  QUEUED
+  TRANSCODING
+  READY
+  FAILED
+}
+
+enum Visibility {
+  PUBLIC
+  UNLISTED
+  PRIVATE
+  SUBSCRIBERS_ONLY
+}
+
+model Chapter {
+  id        String @id @default(uuid())
+  videoId   String
+  video     Video  @relation(fields: [videoId], references: [id])
+  title     String
+  startSec  Int
+}
+
+model View {
+  id           String   @id @default(uuid())
+  videoId      String
+  video        Video    @relation(fields: [videoId], references: [id])
+  userId       String?
+  watchedSec   Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Subscription {
+  id                   String   @id @default(uuid())
+  subscriberId         String
+  subscriber           User     @relation("SubscriberSubs", fields: [subscriberId], references: [id])
+  stripeSubscriptionId String   @unique
+  stripePriceId        String
+  status               String   // active, trialing, past_due, canceled
+  currentPeriodEnd     DateTime
+  createdAt            DateTime @default(now())
+}
+
+model WatchParty {
+  id         String   @id @default(uuid())
+  videoId    String
+  hostId     String
+  roomCode   String   @unique
+  createdAt  DateTime @default(now())
+}

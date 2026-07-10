@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.DS_Store
+uploads/
+tmp/
+
+# Prisma generated client — regenerated via `npx prisma generate` on install
+apps/api/generated/
+
+# Vite build output
+apps/web/dist/
